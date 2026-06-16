@@ -1,0 +1,19 @@
+{
+  "name": "bite-express-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "biteexpress-driver-clean",
+    "biteexpress-control",
+    "notification-server"
+  ],
+  "scripts": {
+    "start": "npm run build:shared && npm run start -w notification-server",
+    "build:shared": "npm run build -w @biteexpress/shared",
+    "build:server": "npm run build:shared && npm run build -w notification-server",
+    "build:server:win": "npm run build:shared && npm run build:win -w notification-server",
+    "typecheck:app": "npx tsc --noEmit -p biteexpress-driver-clean/tsconfig.json",
+    "typecheck:control": "npx tsc --noEmit -p biteexpress-control/tsconfig.json",
+    "ci": "npm run build:shared && npm run typecheck:app && npm run typecheck:control && node --check notification-server/server.js"
+  }
+}

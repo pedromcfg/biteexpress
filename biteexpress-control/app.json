@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "biteexpress-control",
+    "slug": "biteexpress-control",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "android": {
+      "package": "com.pedromcfg.biteexpresscontrol"
+    }
+  }
+}

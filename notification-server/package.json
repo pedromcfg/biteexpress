@@ -1,0 +1,38 @@
+{
+  "name": "notification-server",
+  "version": "1.0.0",
+  "description": "Servidor simples para disparar notificações na app Bite Express",
+  "main": "server.js",
+  "bin": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build:shared": "npm --prefix ../packages/shared run build",
+    "build": "npm run build:shared && pkg . --out-path dist && npm run build:copy-files",
+    "build:win": "npm run build:shared && pkg . --targets node18-win-x64 --out-path dist && npm run build:copy-files",
+    "build:all": "npm run build:shared && pkg . --targets node18-win-x64,node18-linux-x64,node18-macos-x64 --out-path dist && npm run build:copy-files",
+    "build:copy-files": "node copy-files.js"
+  },
+  "dependencies": {
+    "@biteexpress/shared": "*",
+    "bonjour": "^3.5.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1"
+  },
+  "pkg": {
+    "assets": [
+      "public/**/*"
+    ],
+    "outputPath": "dist"
+  },
+  "keywords": [
+    "notification",
+    "server"
+  ],
+  "author": "",
+  "license": "ISC"
+}

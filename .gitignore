@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Builds & caches
+packages/shared/dist/
+notification-server/dist/
+.expo/
+.turbo/
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db
+
+# Env (nunca commitar segredos)
+.env
+.env.*.local
