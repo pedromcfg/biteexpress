@@ -9,7 +9,10 @@ const { Server } = require('socket.io');
 const {
   postNotificationBodySchema,
   externalNotificationSchema,
-  SOCKET_NOTIFICATION_EVENT
+  postGeofenceBodySchema,
+  geofenceSchema,
+  SOCKET_NOTIFICATION_EVENT,
+  SOCKET_GEOFENCES_UPDATED_EVENT
 } = require('@biteexpress/shared');
 
 const app = express();
@@ -22,7 +25,7 @@ const IS_CLOUD = Boolean(
 
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
-  cors: { origin: '*', methods: ['GET', 'POST'] },
+  cors: { origin: '*', methods: ['GET', 'POST', 'DELETE'] },
   transports: ['websocket', 'polling']
 });
 
@@ -41,6 +44,43 @@ app.use(express.static('public'));
 
 // Armazena notificações pendentes (em memória)
 let pendingNotifications = [];
+/** Geofences já disparados nesta sessão de take (limpo no /reset). */
+const firedGeofenceIds = new Set();
+
+/** Geofences activos (configuráveis no painel). Reset NÃO apaga esta lista. */
+let activeGeofences = [
+  {
+    id: 'pickup-restaurant',
+    cueKey: 'pickup_done_start_delivery',
+    latitude: 41.1525,
+    longitude: -8.6205,
+    radiusMeters: 80,
+    enabled: true,
+    label: 'Restaurante (pedido recolhido)'
+  },
+  {
+    id: 'delivery-client',
+    cueKey: 'arrival_praise',
+    latitude: 41.159,
+    longitude: -8.6345,
+    radiusMeters: 80,
+    enabled: true,
+    label: 'Cliente (chegou ao destino)'
+  },
+  {
+    id: 'wrong-route-zone',
+    cueKey: 'wrong_route_red_2',
+    latitude: 41.154,
+    longitude: -8.628,
+    radiusMeters: 100,
+    enabled: true,
+    label: 'Zona rota errada'
+  }
+];
+
+function emitGeofencesUpdated() {
+  io.emit(SOCKET_GEOFENCES_UPDATED_EVENT, { geofences: activeGeofences });
+}
 
 // Mensagens pré-definidas
 const PREDEFINED_MESSAGES = [
@@ -52,20 +92,25 @@ const PREDEFINED_MESSAGES = [
 const SCRIPT_CUES = {
   arrival_praise: {
     title: 'Chegou ao seu destino',
-    body: 'Wow! Es o estafeta mais rapido da cidade.',
+    body: 'Chegou ao seu destino.',
     ctaLabel: 'Ok, entendido',
     highlightEmoji: false,
     performanceBars: 4,
+    soundKey: 'coins',
+    vibrate: true,
+    showBadge: 'new_record',
     cueKey: 'arrival_praise'
   },
   continue_shift_prompt: {
-    title: 'Bonus de desempenho',
-    body: 'Estas a 10€ de ganhar 40€! Ganha mais dinheiro, nao pares agora!',
-    ctaLabel: 'Terminar Sessao',
+    title: 'Bónus 2x€€',
+    body: 'Bónus 2x€€ — ganha mais se continuares agora!',
+    ctaLabel: 'Terminar Sessão',
     secondaryCtaLabel: 'Fazer Entrega',
     choiceType: 'continue_shift',
     highlightEmoji: false,
     performanceBars: 4,
+    showBadge: 'bonus_2x',
+    soundKey: 'up',
     cueKey: 'continue_shift_prompt'
   },
   new_order_drop: {
@@ -74,6 +119,7 @@ const SCRIPT_CUES = {
     ctaLabel: 'Aceitar pedido',
     highlightEmoji: false,
     mapStage: 'pickup',
+    soundKey: 'up',
     orderPayload: {
       id: 'order-2041',
       shortId: '#2041',
@@ -89,7 +135,7 @@ const SCRIPT_CUES = {
   },
   pickup_done_start_delivery: {
     title: 'Pedido recolhido',
-    body: 'Segue para o cliente. Mantem o ritmo.',
+    body: 'Segue para o cliente. Mantém o ritmo.',
     ctaLabel: 'Ok, entendido',
     highlightEmoji: false,
     mapStage: 'delivering',
@@ -102,47 +148,111 @@ const SCRIPT_CUES = {
   },
   urgent_only_ack: {
     title: 'Entrega urgente',
-    body: 'Apressa-te com esta entrega urgente.',
+    body: 'Vamos lá, Susana! Esta entrega é tua!',
     ctaLabel: 'Ok, entendido',
     highlightEmoji: true,
     mapStage: 'delivering',
+    soundKey: 'coins',
+    vibrate: true,
     cueKey: 'urgent_only_ack'
   },
   timer_drop_yellow: {
-    title: 'Vira a direita',
-    body: 'A rota foi atualizada. Mantem o ritmo.',
+    title: 'Vira à direita',
+    body: 'A rota foi atualizada. Mantém o ritmo.',
     ctaLabel: 'Ok, entendido',
     performanceBars: 3,
     countdownMinutes: 20,
     highlightEmoji: false,
     mapStage: 'delivering',
+    soundKey: 'down',
     cueKey: 'timer_drop_yellow'
   },
   wrong_route_red_2: {
-    title: 'Oh nao!',
-    body: 'A comida esta a ficar fria. Rapido!',
+    title: 'Oh não!',
+    body: 'A comida está a ficar fria. Rápido!',
     ctaLabel: 'Ok, entendido',
     performanceBars: 2,
     highlightEmoji: true,
     mapStage: 'lost',
+    soundKey: 'down',
+    vibrate: true,
+    showContactClient: true,
     cueKey: 'wrong_route_red_2'
   },
-  final_break_red_1: {
-    title: 'Despacha-te!',
-    body: 'Os clientes estao com fome!',
-    ctaLabel: 'Ok, entendido',
-    performanceBars: 1,
-    highlightEmoji: true,
+  gps_continue_left: {
+    title: 'GPS',
+    body: 'Continua em frente. Daqui a cem metros vira à esquerda.',
+    gpsInstruction: 'Continua em frente. Daqui a cem metros vira à esquerda.',
     mapStage: 'lost',
-    cueKey: 'final_break_red_1'
+    hudOnly: true,
+    cueKey: 'gps_continue_left'
+  },
+  gps_turn_right: {
+    title: 'GPS',
+    body: 'Vira à direita.',
+    gpsInstruction: 'Vira à direita.',
+    mapStage: 'lost',
+    hudOnly: true,
+    cueKey: 'gps_turn_right'
+  },
+  gps_continue: {
+    title: 'GPS',
+    body: 'Continua em frente.',
+    gpsInstruction: 'Continua em frente.',
+    mapStage: 'lost',
+    hudOnly: true,
+    cueKey: 'gps_continue'
+  },
+  gps_glitch: {
+    title: 'GPS',
+    body: 'Daqu-- Continua em frente. Daqui a cem-- Continua em fren--',
+    gpsInstruction: 'Daqu-- Continua em frente. Daqui a cem-- Continua em fren--',
+    gpsGlitch: true,
+    mapStage: 'lost',
+    hudOnly: true,
+    soundKey: 'down',
+    showContactClient: true,
+    cueKey: 'gps_glitch'
+  },
+  client_unavailable: {
+    title: 'Contactar Cliente',
+    body: 'O número para o qual ligou não está disponível. Deixe mensagem ou ligue mais tarde.',
+    ctaLabel: 'Ok, entendido',
+    mapStage: 'lost',
+    cueKey: 'client_unavailable'
+  },
+  support_bot_1: {
+    title: 'BOT GoYum — Ana',
+    body: 'Olá, estás a ligar para o serviço de atendimento da GoYum. O meu nome é Ana, em que posso ajudar?',
+    ctaLabel: 'Ok, entendido',
+    mapStage: 'lost',
+    cueKey: 'support_bot_1'
   },
   support_bot_fail: {
-    title: 'BOT GoYum',
-    body: 'Entendo. Tens a certeza que desejas sair da aplicacao?',
+    title: 'BOT GoYum — Ana',
+    body: 'Entendo. Tens a certeza que desejas sair da aplicação?',
     ctaLabel: 'Ok, entendido',
     highlightEmoji: false,
     mapStage: 'lost',
     cueKey: 'support_bot_fail'
+  },
+  support_bot_3: {
+    title: 'BOT GoYum — Ana',
+    body: 'Espero ter ajudado. Obrigada pelo teu contacto.',
+    ctaLabel: 'Ok, entendido',
+    mapStage: 'lost',
+    cueKey: 'support_bot_3'
+  },
+  final_break_red_1: {
+    title: 'Despacha-te!',
+    body: 'Os clientes estão com fome!',
+    ctaLabel: 'Ok, entendido',
+    highlightEmoji: true,
+    performanceBars: 1,
+    mapStage: 'lost',
+    soundKey: 'down',
+    vibrate: true,
+    cueKey: 'final_break_red_1'
   }
 };
 
@@ -170,7 +280,19 @@ app.post('/notifications', (req, res) => {
     });
   }
 
-  const { message, messageIndex, cueKey } = bodyParse.data;
+  const { message, messageIndex, cueKey, source, geofenceId } = bodyParse.data;
+
+  if (source === 'geofence' && geofenceId) {
+    if (firedGeofenceIds.has(geofenceId)) {
+      console.log(`⏭️ Geofence já disparado nesta sessão: ${geofenceId}`);
+      return res.status(409).json({
+        success: false,
+        duplicate: true,
+        geofenceId,
+        error: 'Geofence já disparado nesta sessão (usa Reset Cues para novo take)'
+      });
+    }
+  }
 
   let notificationMessage;
   let cuePayload = null;
@@ -189,11 +311,17 @@ app.post('/notifications', (req, res) => {
     });
   }
 
+  if (source === 'geofence' && geofenceId) {
+    firedGeofenceIds.add(geofenceId);
+  }
+
   const notification = {
     id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     message: notificationMessage,
     timestamp: Date.now(),
-    ...(cuePayload || {})
+    ...(cuePayload || {}),
+    ...(source ? { triggerSource: source } : {}),
+    ...(geofenceId ? { geofenceId } : {})
   };
 
   const notifParse = externalNotificationSchema.safeParse(notification);
@@ -208,7 +336,8 @@ app.post('/notifications', (req, res) => {
   pendingNotifications.push(notifParse.data);
   emitNotificationToClients(notifParse.data);
 
-  console.log(`✅ Notificação adicionada: "${notificationMessage}"`);
+  const originLabel = source === 'geofence' ? `geofence:${geofenceId}` : source === 'manual' ? 'manual' : 'painel/api';
+  console.log(`✅ Notificação adicionada (${originLabel}): "${notificationMessage}"`);
   console.log(`📊 Total de notificações pendentes: ${pendingNotifications.length}`);
 
   res.json({ success: true, notification: notifParse.data });
@@ -223,9 +352,71 @@ app.get('/cues', (req, res) => {
   res.json({ cues: SCRIPT_CUES });
 });
 
+// GET /geofences - lista activa para a app / painel
+app.get('/geofences', (req, res) => {
+  res.json({ geofences: activeGeofences });
+});
+
+// POST /geofences - criar geofence no painel
+app.post('/geofences', (req, res) => {
+  const bodyParse = postGeofenceBodySchema.safeParse(req.body);
+  if (!bodyParse.success) {
+    return res.status(400).json({
+      error: 'Corpo inválido',
+      issues: bodyParse.error.flatten()
+    });
+  }
+
+  const data = bodyParse.data;
+  if (!SCRIPT_CUES[data.cueKey]) {
+    return res.status(400).json({
+      error: 'cueKey inválido',
+      validCueKeys: Object.keys(SCRIPT_CUES)
+    });
+  }
+
+  const fence = {
+    id: `geo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    label: data.label || SCRIPT_CUES[data.cueKey].title || data.cueKey,
+    latitude: data.latitude,
+    longitude: data.longitude,
+    radiusMeters: data.radiusMeters ?? 80,
+    cueKey: data.cueKey,
+    enabled: data.enabled !== false
+  };
+
+  const fenceParse = geofenceSchema.safeParse(fence);
+  if (!fenceParse.success) {
+    return res.status(500).json({
+      error: 'Geofence interno inválido',
+      issues: fenceParse.error.flatten()
+    });
+  }
+
+  activeGeofences.push(fenceParse.data);
+  emitGeofencesUpdated();
+  console.log(`📍 Geofence criado: ${fenceParse.data.label} (${fenceParse.data.id})`);
+  res.json({ success: true, geofence: fenceParse.data, geofences: activeGeofences });
+});
+
+// DELETE /geofences/:id
+app.delete('/geofences/:id', (req, res) => {
+  const id = req.params.id;
+  const before = activeGeofences.length;
+  activeGeofences = activeGeofences.filter((g) => g.id !== id);
+  if (activeGeofences.length === before) {
+    return res.status(404).json({ error: 'Geofence não encontrado', id });
+  }
+  firedGeofenceIds.delete(id);
+  emitGeofencesUpdated();
+  console.log(`🗑️ Geofence removido: ${id}`);
+  res.json({ success: true, geofences: activeGeofences });
+});
+
 // POST /reset - Reinicia estado de cues para novo take
 app.post('/reset', (req, res) => {
   pendingNotifications = [];
+  firedGeofenceIds.clear();
 
   const resetNotification = {
     id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,

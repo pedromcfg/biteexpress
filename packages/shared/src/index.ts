@@ -12,4 +12,13 @@ export {
   type PostNotificationBody
 } from './schemas/notifications';
 
-export { SOCKET_NOTIFICATION_EVENT } from './socket';
+export {
+  geofenceSchema,
+  postGeofenceBodySchema,
+  geofencesResponseSchema,
+  type Geofence,
+  type PostGeofenceBody,
+  type GeofencesResponse
+} from './schemas/geofences';
+
+export { SOCKET_NOTIFICATION_EVENT, SOCKET_GEOFENCES_UPDATED_EVENT } from './socket';

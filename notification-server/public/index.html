@@ -165,6 +165,100 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+
+    .geo-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .geo-form label {
+      display: block;
+      font-size: 12px;
+      color: #4a5568;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .geo-form input,
+    .geo-form select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fff;
+      color: #1a202c;
+    }
+
+    .geo-form .full {
+      grid-column: 1 / -1;
+    }
+
+    .geo-add-btn {
+      width: 100%;
+      padding: 12px;
+      background: #16A34A;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+
+    .geo-add-btn:hover {
+      background: #15803D;
+    }
+
+    .geo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .geo-item {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .geo-item strong {
+      color: #1a202c;
+      font-size: 14px;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .geo-item span {
+      color: #718096;
+      font-size: 12px;
+      display: block;
+      line-height: 1.4;
+    }
+
+    .geo-remove {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .geo-remove:hover {
+      background: #fecaca;
+    }
   </style>
 </head>
 <body>
@@ -214,48 +308,126 @@
       </button>
     </div>
 
-    <div class="messages-section">
+            <div class="messages-section">
       <h2 class="section-title">Cues do Guião</h2>
-
-      <button class="message-button" onclick="sendCue('new_order_drop', this)">
-        Cena 1: Novo pedido cai na app
-      </button>
-
-      <button class="message-button" onclick="sendCue('pickup_done_start_delivery', this)">
-        Cena 2: Pedido recolhido e rota para cliente
-      </button>
+      <p style="color: #9CA3AF; font-size: 12px; margin: -4px 0 14px;">
+        Ordem do <strong>Script-17-julho</strong>. Tags
+        <strong style="color: #34D399;">GPS</strong> = proximidade;
+        <strong style="color: #60A5FA;">HUD</strong> = só banner no mapa.
+      </p>
 
       <button class="message-button" onclick="sendCue('arrival_praise', this)">
-        Cena 3: Chegou ao destino + elogio
+        1. Chegou ao seu destino (4 barras)
+        <span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(52,211,153,0.2);color:#34D399;font-size:11px;font-weight:700;">GPS</span>
       </button>
 
       <button class="message-button" onclick="sendCue('continue_shift_prompt', this)">
-        Cena 4: Estás a 10€ de ganhar 40€
+        2. Bonus 2xEUR (terminar / fazer entrega)
+      </button>
+
+      <button class="message-button" onclick="sendCue('new_order_drop', this)">
+        3. Novo pedido — restaurante
+      </button>
+
+      <button class="message-button" onclick="sendCue('pickup_done_start_delivery', this)">
+        4. Pedido recolhido — rota cliente
+        <span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(52,211,153,0.2);color:#34D399;font-size:11px;font-weight:700;">GPS</span>
       </button>
 
       <button class="message-button" onclick="sendCue('urgent_only_ack', this)">
-        Cena 5: Entrega urgente (botão único)
+        5. Vamos la, Susana! Esta entrega e tua!
       </button>
 
       <button class="message-button" onclick="sendCue('timer_drop_yellow', this)">
-        Cena 6: Cronómetro 20 min + barra amarela
+        6. Rota atualizada / cronometro
+      </button>
+
+      <button class="message-button" onclick="sendCue('gps_continue_left', this)">
+        7a. GPS: Continua / vira a esquerda
+        <span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(96,165,250,0.25);color:#60A5FA;font-size:11px;font-weight:700;">HUD</span>
       </button>
 
       <button class="message-button" onclick="sendCue('wrong_route_red_2', this)">
-        Cena 7: Rota errada + barra vermelha (2)
+        7b. Comida a ficar fria (2 barras)
+        <span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(52,211,153,0.2);color:#34D399;font-size:11px;font-weight:700;">GPS</span>
+      </button>
+
+      <button class="message-button" onclick="sendCue('gps_turn_right', this)">
+        8a. GPS: Vira a direita
+        <span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(96,165,250,0.25);color:#60A5FA;font-size:11px;font-weight:700;">HUD</span>
+      </button>
+
+      <button class="message-button" onclick="sendCue('gps_continue', this)">
+        8b. GPS: Continua em frente
+        <span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(96,165,250,0.25);color:#60A5FA;font-size:11px;font-weight:700;">HUD</span>
+      </button>
+
+      <button class="message-button" onclick="sendCue('gps_glitch', this)">
+        8c. GPS glitch (voz a falhar)
+        <span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(96,165,250,0.25);color:#60A5FA;font-size:11px;font-weight:700;">HUD</span>
+      </button>
+
+      <button class="message-button" onclick="sendCue('client_unavailable', this)">
+        9. Contactar Cliente — numero indisponivel
+      </button>
+
+      <button class="message-button" onclick="sendCue('support_bot_1', this)">
+        10a. BOT Ana — saudacao
       </button>
 
       <button class="message-button" onclick="sendCue('support_bot_fail', this)">
-        Cena 8: BOT atendimento inútil
+        10b. BOT Ana — Tens a certeza…
+      </button>
+
+      <button class="message-button" onclick="sendCue('support_bot_3', this)">
+        10c. BOT Ana — Espero ter ajudado
       </button>
 
       <button class="message-button" onclick="sendCue('final_break_red_1', this)">
-        Cena 9: Pressão final (último traço)
+        11. Despacha-te! (1 barra)
       </button>
 
       <button class="reset-button" onclick="resetCues(this)">
         Reset Cues (novo take)
       </button>
+    </div>
+
+    <div class="messages-section">
+      <h2 class="section-title">Geofences GPS</h2>
+      <p style="color: #718096; font-size: 12px; margin: -4px 0 14px;">
+        Cola lat/lng do Maps. Ao chegar dentro do raio, a app dispara a cue escolhida.
+        Reset Cues limpa “já disparou”, não apaga estes pontos.
+      </p>
+
+      <form id="geofenceForm" class="geo-form" onsubmit="return addGeofence(event)">
+        <div class="full">
+          <label for="geoLabel">Etiqueta</label>
+          <input id="geoLabel" type="text" placeholder="ex: Porta do restaurante" />
+        </div>
+        <div>
+          <label for="geoLat">Latitude</label>
+          <input id="geoLat" type="number" step="any" required placeholder="41.1525" />
+        </div>
+        <div>
+          <label for="geoLng">Longitude</label>
+          <input id="geoLng" type="number" step="any" required placeholder="-8.6205" />
+        </div>
+        <div>
+          <label for="geoRadius">Raio (metros)</label>
+          <input id="geoRadius" type="number" min="10" max="5000" value="80" required />
+        </div>
+        <div>
+          <label for="geoCue">Cue a disparar</label>
+          <select id="geoCue" required>
+            <option value="">A carregar…</option>
+          </select>
+        </div>
+        <div class="full">
+          <button type="submit" class="geo-add-btn">Adicionar geofence</button>
+        </div>
+      </form>
+
+      <div id="geofenceList" class="geo-list"></div>
     </div>
 
     <div id="status" class="status"></div>
@@ -378,6 +550,129 @@
         button.disabled = false;
       }
     }
+
+    const CUE_LABELS = {
+      arrival_praise: '1. Chegou ao destino',
+      continue_shift_prompt: '2. Bonus 2xEUR',
+      new_order_drop: '3. Novo pedido',
+      pickup_done_start_delivery: '4. Pedido recolhido',
+      urgent_only_ack: '5. Vamos la, Susana',
+      timer_drop_yellow: '6. Rota / cronometro',
+      gps_continue_left: '7a. GPS esquerda',
+      wrong_route_red_2: '7b. Comida fria',
+      gps_turn_right: '8a. GPS direita',
+      gps_continue: '8b. GPS continua',
+      gps_glitch: '8c. GPS glitch',
+      client_unavailable: '9. Cliente indisponivel',
+      support_bot_1: '10a. BOT Ana 1',
+      support_bot_fail: '10b. BOT Ana 2',
+      support_bot_3: '10c. BOT Ana 3',
+      final_break_red_1: '11. Despacha-te'
+    };
+
+    async function loadCueOptions() {
+      const select = document.getElementById('geoCue');
+      try {
+        const res = await fetch('/cues');
+        const data = await res.json();
+        const keys = Object.keys(data.cues || {});
+        select.innerHTML = keys
+          .map((key) => `<option value="${key}">${CUE_LABELS[key] || key}</option>`)
+          .join('');
+      } catch (e) {
+        select.innerHTML = '<option value="">Erro ao carregar cues</option>';
+      }
+    }
+
+    function renderGeofences(geofences) {
+      const list = document.getElementById('geofenceList');
+      if (!geofences || geofences.length === 0) {
+        list.innerHTML = '<p style="color:#718096;font-size:13px;">Nenhum geofence activo.</p>';
+        return;
+      }
+      list.innerHTML = geofences
+        .map(
+          (g) => `
+        <div class="geo-item">
+          <div>
+            <strong>${g.label}</strong>
+            <span>${g.latitude}, ${g.longitude} · raio ${g.radiusMeters}m</span>
+            <span>Cue: ${CUE_LABELS[g.cueKey] || g.cueKey}${g.enabled === false ? ' · desligado' : ''}</span>
+          </div>
+          <button type="button" class="geo-remove" onclick="removeGeofence('${g.id}')">Remover</button>
+        </div>`
+        )
+        .join('');
+    }
+
+    async function loadGeofences() {
+      try {
+        const res = await fetch('/geofences');
+        const data = await res.json();
+        renderGeofences(data.geofences || []);
+      } catch (e) {
+        document.getElementById('geofenceList').innerHTML =
+          '<p style="color:#b91c1c;font-size:13px;">Erro ao carregar geofences.</p>';
+      }
+    }
+
+    async function addGeofence(event) {
+      event.preventDefault();
+      const statusEl = document.getElementById('status');
+      const payload = {
+        label: document.getElementById('geoLabel').value.trim() || undefined,
+        latitude: Number(document.getElementById('geoLat').value),
+        longitude: Number(document.getElementById('geoLng').value),
+        radiusMeters: Number(document.getElementById('geoRadius').value),
+        cueKey: document.getElementById('geoCue').value
+      };
+
+      statusEl.className = 'status';
+      try {
+        const res = await fetch('/geofences', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro ao criar geofence');
+        renderGeofences(data.geofences || []);
+        document.getElementById('geoLabel').value = '';
+        document.getElementById('geoLat').value = '';
+        document.getElementById('geoLng').value = '';
+        document.getElementById('geoRadius').value = '80';
+        statusEl.className = 'status success';
+        statusEl.textContent = '📍 Geofence adicionado. A app actualiza em breve.';
+        setTimeout(() => {
+          statusEl.className = 'status';
+        }, 3000);
+      } catch (error) {
+        statusEl.className = 'status error';
+        statusEl.textContent = `❌ Erro: ${error.message}`;
+      }
+      return false;
+    }
+
+    async function removeGeofence(id) {
+      const statusEl = document.getElementById('status');
+      try {
+        const res = await fetch('/geofences/' + encodeURIComponent(id), { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro ao remover');
+        renderGeofences(data.geofences || []);
+        statusEl.className = 'status success';
+        statusEl.textContent = '🗑️ Geofence removido.';
+        setTimeout(() => {
+          statusEl.className = 'status';
+        }, 2500);
+      } catch (error) {
+        statusEl.className = 'status error';
+        statusEl.textContent = `❌ Erro: ${error.message}`;
+      }
+    }
+
+    loadCueOptions();
+    loadGeofences();
   </script>
 </body>
 </html>
