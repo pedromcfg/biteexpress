@@ -68,60 +68,42 @@
     .server-info {
       background: var(--panel);
       border: 1px solid var(--border);
-      border-left: 4px solid var(--green);
-      padding: 16px;
+      padding: 14px 16px;
       margin-bottom: 28px;
       border-radius: 12px;
     }
 
-    .server-info strong {
-      color: #E5E7EB;
-      display: block;
-      margin-bottom: 6px;
-      font-size: 13px;
+    .url-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
-    .server-info code {
+    .url-row code {
+      flex: 1;
+      min-width: 180px;
       background: #020617;
-      padding: 4px 8px;
-      border-radius: 6px;
+      padding: 10px 12px;
+      border-radius: 8px;
       font-family: ui-monospace, 'Courier New', monospace;
       color: #86EFAC;
-      font-size: 13px;
+      font-size: 14px;
+      font-weight: 700;
       border: 1px solid var(--border);
-    }
-
-    .info-card {
-      margin-top: 12px;
-      padding: 12px;
-      background: rgba(2, 6, 23, 0.65);
-      border-radius: 10px;
-      border-left: 4px solid var(--green);
-    }
-
-    .info-card.warn {
-      border-left-color: #EF4444;
-    }
-
-    .info-card strong {
-      color: #86EFAC;
-      margin-bottom: 8px;
-    }
-
-    .info-card.warn strong {
-      color: #FCA5A5;
+      word-break: break-all;
     }
 
     .copy-btn {
-      margin-top: 8px;
-      padding: 8px 12px;
+      padding: 10px 14px;
       background: var(--green);
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
+      white-space: nowrap;
     }
 
     .copy-btn:hover {
@@ -362,52 +344,17 @@
     <p class="subtitle">GoYUM Driver · painel de cues para rodagem</p>
 
     <div class="server-info">
-      <strong>Servidor ativo</strong>
-      <code id="serverUrl">http://localhost:3000</code>
-      <div class="info-card">
-        <strong>IP / URL para a app</strong>
-        <code id="serverIP" style="font-size: 15px; font-weight: 700; word-break: break-all; display: inline-block; margin-top: 4px;">Carregando...</code>
-        <div>
-          <button class="copy-btn" onclick="copyIP()">Copiar URL</button>
-        </div>
+      <div class="url-row">
+        <code id="serverIP">Carregando...</code>
+        <button class="copy-btn" onclick="copyIP()">Copiar URL</button>
       </div>
-
-      <div class="info-card warn">
-        <strong>Problemas de ligação?</strong>
-        <p style="color: #9CA3AF; font-size: 12px; margin: 6px 0 0;">
-          Em rede local, o firewall do Windows pode bloquear a porta 3000.
-          Corre <code>open-firewall.bat</code> como Administrador se precisares.
-        </p>
-      </div>
-    </div>
-
-    <div class="messages-section">
-      <h2 class="section-title">Mensagens Pré-definidas</h2>
-      
-      <button class="message-button" onclick="sendNotification(0, this)">
-        Tens que te apressar, o teu ritmo está muito lento!
-      </button>
-      
-      <button class="message-button" onclick="sendNotification(1, this)">
-        Os teus clientes estão a passar fome!
-      </button>
-      
-      <button class="message-button" onclick="sendNotification(2, this)">
-        Não serves para isto!
-      </button>
     </div>
 
     <div class="messages-section">
       <h2 class="section-title">Cues do Guião</h2>
-      <p class="section-hint">
-        Ordem do <strong>Script-17-julho</strong>. Tags
-        <strong style="color: #4ADE80;">GPS</strong> = proximidade;
-        <strong style="color: #93C5FD;">HUD</strong> = só banner no mapa.
-      </p>
 
       <button class="message-button" onclick="sendCue('arrival_praise', this)">
         1. Chegou ao seu destino (4 barras)
-        <span class="tag-gps">GPS</span>
       </button>
 
       <button class="message-button" onclick="sendCue('continue_shift_prompt', this)">
@@ -420,7 +367,6 @@
 
       <button class="message-button" onclick="sendCue('pickup_done_start_delivery', this)">
         4. Pedido recolhido — rota cliente
-        <span class="tag-gps">GPS</span>
       </button>
 
       <button class="message-button" onclick="sendCue('urgent_only_ack', this)">
@@ -433,27 +379,22 @@
 
       <button class="message-button" onclick="sendCue('gps_continue_left', this)">
         7a. GPS: Continua / vira a esquerda
-        <span class="tag-hud">HUD</span>
       </button>
 
       <button class="message-button" onclick="sendCue('wrong_route_red_2', this)">
         7b. Comida a ficar fria (2 barras)
-        <span class="tag-gps">GPS</span>
       </button>
 
       <button class="message-button" onclick="sendCue('gps_turn_right', this)">
         8a. GPS: Vira a direita
-        <span class="tag-hud">HUD</span>
       </button>
 
       <button class="message-button" onclick="sendCue('gps_continue', this)">
         8b. GPS: Continua em frente
-        <span class="tag-hud">HUD</span>
       </button>
 
       <button class="message-button" onclick="sendCue('gps_glitch', this)">
         8c. GPS glitch (voz a falhar)
-        <span class="tag-hud">HUD</span>
       </button>
 
       <button class="message-button" onclick="sendCue('client_unavailable', this)">
@@ -526,18 +467,19 @@
     // true = mostrar configuracao de geofences no painel
     const SHOW_GEOFENCES_UI = false;
     const serverUrl = window.location.origin;
-    document.getElementById('serverUrl').textContent = serverUrl;
 
-    // Busca o IP real do servidor
+    // Busca o IP/URL real do servidor
     fetch('/discover')
       .then(res => res.json())
       .then(data => {
         const ipElement = document.getElementById('serverIP');
-        ipElement.textContent = data.url;
-        ipElement.dataset.ip = data.url;
+        ipElement.textContent = data.url || serverUrl;
+        ipElement.dataset.ip = data.url || serverUrl;
       })
       .catch(err => {
-        document.getElementById('serverIP').textContent = 'Erro ao obter IP';
+        const ipElement = document.getElementById('serverIP');
+        ipElement.textContent = serverUrl;
+        ipElement.dataset.ip = serverUrl;
       });
 
     function copyIP() {
