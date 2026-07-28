@@ -5,6 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Controlo de Notificações - Bite Express</title>
   <style>
+    :root {
+      --bg: #020617;
+      --bg-elevated: #0B1220;
+      --panel: #111827;
+      --border: #1F2937;
+      --text: #F9FAFB;
+      --muted: #9CA3AF;
+      --muted-2: #6B7280;
+      --green: #16A34A;
+      --green-hover: #15803D;
+      --green-soft: rgba(22, 163, 74, 0.18);
+      --red: #DC2626;
+      --red-hover: #B91C1C;
+      --blue: #3B82F6;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -13,89 +29,143 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(22, 163, 74, 0.12), transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, rgba(15, 23, 42, 0.9), transparent 50%),
+        var(--bg);
       min-height: 100vh;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      padding: 20px;
+      padding: 28px 16px 48px;
+      color: var(--text);
     }
 
     .container {
-      background: white;
+      background: rgba(11, 18, 32, 0.96);
       border-radius: 20px;
-      padding: 40px;
-      max-width: 600px;
+      padding: 32px;
+      max-width: 640px;
       width: 100%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
     }
 
     h1 {
-      color: #1a202c;
-      margin-bottom: 10px;
-      font-size: 28px;
+      color: var(--text);
+      margin-bottom: 6px;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
     }
 
     .subtitle {
-      color: #718096;
-      margin-bottom: 30px;
+      color: var(--muted);
+      margin-bottom: 24px;
       font-size: 14px;
     }
 
     .server-info {
-      background: #f7fafc;
-      border-left: 4px solid #667eea;
-      padding: 15px;
-      margin-bottom: 30px;
-      border-radius: 8px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--green);
+      padding: 16px;
+      margin-bottom: 28px;
+      border-radius: 12px;
     }
 
     .server-info strong {
-      color: #2d3748;
+      color: #E5E7EB;
       display: block;
-      margin-bottom: 5px;
-    }
-
-    .server-info code {
-      background: #edf2f7;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-family: 'Courier New', monospace;
-      color: #e53e3e;
+      margin-bottom: 6px;
       font-size: 13px;
     }
 
+    .server-info code {
+      background: #020617;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-family: ui-monospace, 'Courier New', monospace;
+      color: #86EFAC;
+      font-size: 13px;
+      border: 1px solid var(--border);
+    }
+
+    .info-card {
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(2, 6, 23, 0.65);
+      border-radius: 10px;
+      border-left: 4px solid var(--green);
+    }
+
+    .info-card.warn {
+      border-left-color: #EF4444;
+    }
+
+    .info-card strong {
+      color: #86EFAC;
+      margin-bottom: 8px;
+    }
+
+    .info-card.warn strong {
+      color: #FCA5A5;
+    }
+
+    .copy-btn {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: var(--green);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .copy-btn:hover {
+      background: var(--green-hover);
+    }
+
     .messages-section {
-      margin-bottom: 30px;
+      margin-bottom: 28px;
     }
 
     .section-title {
-      color: #2d3748;
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 15px;
+      color: #E5E7EB;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .section-hint {
+      color: var(--muted);
+      font-size: 12px;
+      margin: -2px 0 14px;
+      line-height: 1.45;
     }
 
     .message-button {
       width: 100%;
-      padding: 18px 20px;
-      margin-bottom: 12px;
-      background: #667eea;
-      color: white;
-      border: none;
+      padding: 14px 44px 14px 16px;
+      margin-bottom: 10px;
+      background: #0B1220;
+      color: var(--text);
+      border: 1px solid var(--border);
       border-radius: 12px;
-      font-size: 16px;
-      font-weight: 500;
+      font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: border-color 0.15s, background 0.15s, transform 0.15s;
       text-align: left;
       position: relative;
     }
 
     .message-button:hover {
-      background: #5568d3;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      background: #111827;
+      border-color: rgba(22, 163, 74, 0.55);
+      transform: translateY(-1px);
     }
 
     .message-button:active {
@@ -105,48 +175,51 @@
     .message-button::after {
       content: '→';
       position: absolute;
-      right: 20px;
-      font-size: 20px;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: var(--green);
     }
 
     .reset-button {
       width: 100%;
       padding: 14px 18px;
-      margin-top: 6px;
-      background: #dc2626;
+      margin-top: 8px;
+      background: var(--red);
       color: white;
       border: none;
       border-radius: 12px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background 0.15s, transform 0.15s;
     }
 
     .reset-button:hover {
-      background: #b91c1c;
+      background: var(--red-hover);
       transform: translateY(-1px);
     }
 
     .status {
-      margin-top: 20px;
-      padding: 15px;
-      border-radius: 8px;
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 10px;
       display: none;
       font-size: 14px;
     }
 
     .status.success {
-      background: #c6f6d5;
-      color: #22543d;
-      border: 1px solid #9ae6b4;
+      background: rgba(22, 163, 74, 0.15);
+      color: #86EFAC;
+      border: 1px solid rgba(22, 163, 74, 0.45);
       display: block;
     }
 
     .status.error {
-      background: #fed7d7;
-      color: #742a2a;
-      border: 1px solid #fc8181;
+      background: rgba(220, 38, 38, 0.15);
+      color: #FCA5A5;
+      border: 1px solid rgba(220, 38, 38, 0.45);
       display: block;
     }
 
@@ -154,7 +227,7 @@
       display: inline-block;
       width: 14px;
       height: 14px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.25);
       border-radius: 50%;
       border-top-color: white;
       animation: spin 0.8s linear infinite;
@@ -164,6 +237,28 @@
 
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+
+    .tag-gps {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: #4ADE80;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .tag-hud {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.18);
+      color: #93C5FD;
+      font-size: 11px;
+      font-weight: 700;
     }
 
     .geo-form {
@@ -176,7 +271,7 @@
     .geo-form label {
       display: block;
       font-size: 12px;
-      color: #4a5568;
+      color: var(--muted);
       margin-bottom: 4px;
       font-weight: 600;
     }
@@ -185,11 +280,11 @@
     .geo-form select {
       width: 100%;
       padding: 10px 12px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid var(--border);
       border-radius: 8px;
       font-size: 14px;
-      background: #fff;
-      color: #1a202c;
+      background: #020617;
+      color: var(--text);
     }
 
     .geo-form .full {
@@ -199,7 +294,7 @@
     .geo-add-btn {
       width: 100%;
       padding: 12px;
-      background: #16A34A;
+      background: var(--green);
       color: white;
       border: none;
       border-radius: 10px;
@@ -210,7 +305,7 @@
     }
 
     .geo-add-btn:hover {
-      background: #15803D;
+      background: var(--green-hover);
     }
 
     .geo-list {
@@ -220,8 +315,8 @@
     }
 
     .geo-item {
-      background: #f7fafc;
-      border: 1px solid #e2e8f0;
+      background: var(--panel);
+      border: 1px solid var(--border);
       border-radius: 10px;
       padding: 12px;
       display: flex;
@@ -231,23 +326,23 @@
     }
 
     .geo-item strong {
-      color: #1a202c;
+      color: var(--text);
       font-size: 14px;
       display: block;
       margin-bottom: 4px;
     }
 
     .geo-item span {
-      color: #718096;
+      color: var(--muted);
       font-size: 12px;
       display: block;
       line-height: 1.4;
     }
 
     .geo-remove {
-      background: #fee2e2;
-      color: #b91c1c;
-      border: none;
+      background: rgba(220, 38, 38, 0.15);
+      color: #FCA5A5;
+      border: 1px solid rgba(220, 38, 38, 0.35);
       border-radius: 8px;
       padding: 8px 10px;
       font-size: 12px;
@@ -257,38 +352,32 @@
     }
 
     .geo-remove:hover {
-      background: #fecaca;
+      background: rgba(220, 38, 38, 0.28);
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🚨 Controlo de Notificações</h1>
-    <p class="subtitle">Bite Express Driver App</p>
+    <h1>Controlo de Notificações</h1>
+    <p class="subtitle">GoYUM Driver · painel de cues para rodagem</p>
 
     <div class="server-info">
-      <strong>Servidor ativo:</strong>
+      <strong>Servidor ativo</strong>
       <code id="serverUrl">http://localhost:3000</code>
-      <div style="margin-top: 12px; padding: 12px; background: rgba(102, 126, 234, 0.1); border-radius: 8px; border-left: 4px solid #667eea;">
-        <strong style="display: block; margin-bottom: 8px; color: #667eea;">📱 IP para configurar na app:</strong>
-        <code id="serverIP" style="font-size: 16px; color: #667eea; font-weight: bold; word-break: break-all;">Carregando...</code>
-        <button onclick="copyIP()" style="margin-top: 8px; padding: 6px 12px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">
-          📋 Copiar IP
-        </button>
-      </div>
-      
-      <div style="margin-top: 12px; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border-left: 4px solid #EF4444;">
-        <strong style="display: block; margin-bottom: 8px; color: #EF4444;">⚠️ Problemas de Conexão?</strong>
-        <p style="color: #9CA3AF; font-size: 12px; margin: 8px 0;">
-          Se a app não receber notificações, o Firewall do Windows pode estar a bloquear.
-        </p>
-        <div style="margin-top: 8px;">
-          <strong style="color: #EF4444; font-size: 12px; display: block; margin-bottom: 4px;">Solução rápida:</strong>
-          <ol style="color: #9CA3AF; font-size: 11px; margin: 4px 0; padding-left: 20px;">
-            <li>Execute <code style="background: rgba(0,0,0,0.2); padding: 2px 4px; border-radius: 3px;">open-firewall.bat</code> como Administrador</li>
-            <li>Ou abra manualmente o Firewall do Windows e permita a porta 3000</li>
-          </ol>
+      <div class="info-card">
+        <strong>IP / URL para a app</strong>
+        <code id="serverIP" style="font-size: 15px; font-weight: 700; word-break: break-all; display: inline-block; margin-top: 4px;">Carregando...</code>
+        <div>
+          <button class="copy-btn" onclick="copyIP()">Copiar URL</button>
         </div>
+      </div>
+
+      <div class="info-card warn">
+        <strong>Problemas de ligação?</strong>
+        <p style="color: #9CA3AF; font-size: 12px; margin: 6px 0 0;">
+          Em rede local, o firewall do Windows pode bloquear a porta 3000.
+          Corre <code>open-firewall.bat</code> como Administrador se precisares.
+        </p>
       </div>
     </div>
 
@@ -308,21 +397,21 @@
       </button>
     </div>
 
-            <div class="messages-section">
+    <div class="messages-section">
       <h2 class="section-title">Cues do Guião</h2>
-      <p style="color: #9CA3AF; font-size: 12px; margin: -4px 0 14px;">
+      <p class="section-hint">
         Ordem do <strong>Script-17-julho</strong>. Tags
-        <strong style="color: #34D399;">GPS</strong> = proximidade;
-        <strong style="color: #60A5FA;">HUD</strong> = só banner no mapa.
+        <strong style="color: #4ADE80;">GPS</strong> = proximidade;
+        <strong style="color: #93C5FD;">HUD</strong> = só banner no mapa.
       </p>
 
       <button class="message-button" onclick="sendCue('arrival_praise', this)">
         1. Chegou ao seu destino (4 barras)
-        <span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(52,211,153,0.2);color:#34D399;font-size:11px;font-weight:700;">GPS</span>
+        <span class="tag-gps">GPS</span>
       </button>
 
       <button class="message-button" onclick="sendCue('continue_shift_prompt', this)">
-        2. Bonus 2xEUR (terminar / fazer entrega)
+        2. Bonus 2xEUR (terminar / voltar online)
       </button>
 
       <button class="message-button" onclick="sendCue('new_order_drop', this)">
@@ -331,7 +420,7 @@
 
       <button class="message-button" onclick="sendCue('pickup_done_start_delivery', this)">
         4. Pedido recolhido — rota cliente
-        <span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(52,211,153,0.2);color:#34D399;font-size:11px;font-weight:700;">GPS</span>
+        <span class="tag-gps">GPS</span>
       </button>
 
       <button class="message-button" onclick="sendCue('urgent_only_ack', this)">
@@ -344,27 +433,27 @@
 
       <button class="message-button" onclick="sendCue('gps_continue_left', this)">
         7a. GPS: Continua / vira a esquerda
-        <span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(96,165,250,0.25);color:#60A5FA;font-size:11px;font-weight:700;">HUD</span>
+        <span class="tag-hud">HUD</span>
       </button>
 
       <button class="message-button" onclick="sendCue('wrong_route_red_2', this)">
         7b. Comida a ficar fria (2 barras)
-        <span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(52,211,153,0.2);color:#34D399;font-size:11px;font-weight:700;">GPS</span>
+        <span class="tag-gps">GPS</span>
       </button>
 
       <button class="message-button" onclick="sendCue('gps_turn_right', this)">
         8a. GPS: Vira a direita
-        <span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(96,165,250,0.25);color:#60A5FA;font-size:11px;font-weight:700;">HUD</span>
+        <span class="tag-hud">HUD</span>
       </button>
 
       <button class="message-button" onclick="sendCue('gps_continue', this)">
         8b. GPS: Continua em frente
-        <span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(96,165,250,0.25);color:#60A5FA;font-size:11px;font-weight:700;">HUD</span>
+        <span class="tag-hud">HUD</span>
       </button>
 
       <button class="message-button" onclick="sendCue('gps_glitch', this)">
         8c. GPS glitch (voz a falhar)
-        <span style="display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(96,165,250,0.25);color:#60A5FA;font-size:11px;font-weight:700;">HUD</span>
+        <span class="tag-hud">HUD</span>
       </button>
 
       <button class="message-button" onclick="sendCue('client_unavailable', this)">
@@ -392,9 +481,9 @@
       </button>
     </div>
 
-    <div class="messages-section">
+    <div id="geofencesSection" class="messages-section" style="display:none;">
       <h2 class="section-title">Geofences GPS</h2>
-      <p style="color: #718096; font-size: 12px; margin: -4px 0 14px;">
+      <p class="section-hint">
         Cola lat/lng do Maps. Ao chegar dentro do raio, a app dispara a cue escolhida.
         Reset Cues limpa “já disparou”, não apaga estes pontos.
       </p>
@@ -434,6 +523,8 @@
   </div>
 
   <script>
+    // true = mostrar configuracao de geofences no painel
+    const SHOW_GEOFENCES_UI = false;
     const serverUrl = window.location.origin;
     document.getElementById('serverUrl').textContent = serverUrl;
 
@@ -452,13 +543,13 @@
     function copyIP() {
       const ip = document.getElementById('serverIP').dataset.ip || document.getElementById('serverIP').textContent;
       navigator.clipboard.writeText(ip).then(() => {
-        const button = document.querySelector('button[onclick="copyIP()"]');
+        const button = document.querySelector('.copy-btn');
         const originalText = button.textContent;
-        button.textContent = '✅ Copiado!';
-        button.style.background = '#16A34A';
+        button.textContent = 'Copiado';
+        button.style.background = '#15803D';
         setTimeout(() => {
           button.textContent = originalText;
-          button.style.background = '#667eea';
+          button.style.background = '';
         }, 2000);
       }).catch(err => {
         alert('Erro ao copiar. IP: ' + ip);
@@ -672,7 +763,11 @@
     }
 
     loadCueOptions();
-    loadGeofences();
+    if (SHOW_GEOFENCES_UI) {
+      const geoSection = document.getElementById('geofencesSection');
+      if (geoSection) geoSection.style.display = '';
+      loadGeofences();
+    }
   </script>
 </body>
 </html>
